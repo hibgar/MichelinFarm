@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 public class TaskListManager : MonoBehaviour
 {
@@ -21,11 +22,13 @@ public class TaskListManager : MonoBehaviour
     {
         public string objName;
         public int index;
+        public string timestamp;
 
-        public TasklistItem(string name, int index)
+        public TasklistItem(string name, int index, string timestamp)
         {
             this.objName = name;
             this.index = index;
+            this.timestamp = timestamp;
         }
     } 
 
@@ -50,6 +53,8 @@ public class TaskListManager : MonoBehaviour
         TaskListObj itemObject = item.GetComponent<TaskListObj>();
         
         int index;
+        string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Get current timestamp
+        
         if (loading) 
         {
             index = loadIndex; // Use the saved index
@@ -59,7 +64,7 @@ public class TaskListManager : MonoBehaviour
             index = taskListObjects.Count; // Assign a new unique index
         }
 
-        itemObject.SetObjectInfo(name, index);
+        itemObject.SetObjectInfo(name, index, timestamp);
         taskListObjects.Add(itemObject);
         TaskListObj temp = itemObject;
         itemObject.GetComponent<Toggle>().onValueChanged.AddListener(delegate {CheckItem(temp); });
@@ -82,7 +87,7 @@ public class TaskListManager : MonoBehaviour
 
         for (int i = 0; i < taskListObjects.Count; i++) 
         {
-            TasklistItem temp = new TasklistItem(taskListObjects[i].name, taskListObjects[i].index);
+            TasklistItem temp = new TasklistItem(taskListObjects[i].name, taskListObjects[i].index, System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             contents += JsonUtility.ToJson(taskListObjects[i]) + "\n";
         }
 
