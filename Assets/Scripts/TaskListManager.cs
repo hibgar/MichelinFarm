@@ -40,7 +40,7 @@ public class TaskListManager : MonoBehaviour
         addButton.onClick.AddListener(delegate { CreateTaskListItem(addInputField.text); });
     }
 
-    void CreateTaskListItem(string name, int loadIndex = 0, bool loading = false) 
+    void CreateTaskListItem(string name, int loadIndex = 0, bool loading = false, string timestamp = "") 
     {
         if (string.IsNullOrWhiteSpace(name)) return;
 
@@ -53,7 +53,9 @@ public class TaskListManager : MonoBehaviour
         TaskListObj itemObject = item.GetComponent<TaskListObj>();
         
         int index;
-        string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Get current timestamp
+
+        if (timestamp == "")
+            timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Get current timestamp
         
         if (loading) 
         {
@@ -78,6 +80,12 @@ public class TaskListManager : MonoBehaviour
     {
         taskListObjects.Remove(item);
         Destroy(item.gameObject);
+
+        for (int i = 0; i < taskListObjects.Count; i++)
+        {
+            taskListObjects[i].index = i;
+        }
+
         SaveJSONData();
     }
 
@@ -87,6 +95,7 @@ public class TaskListManager : MonoBehaviour
 
         for (int i = 0; i < taskListObjects.Count; i++) 
         {
+            taskListObjects[i].index = i;
             TasklistItem temp = new TasklistItem(taskListObjects[i].name, taskListObjects[i].index, System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             contents += JsonUtility.ToJson(taskListObjects[i]) + "\n";
         }
@@ -101,14 +110,21 @@ public class TaskListManager : MonoBehaviour
             string contents = File.ReadAllText(filePath);
 
             string[] splitContents = contents.Split('\n');
-            
-            foreach(string content in splitContents)
+
+            int index = 0; // Start fresh indexing
+
+            foreach (string content in splitContents)
             {
                 if (string.IsNullOrWhiteSpace(content)) continue; // Skip empty lines
+
                 TasklistItem temp = JsonUtility.FromJson<TasklistItem>(content.Trim());
-                CreateTaskListItem(temp.objName, temp.index, true);
+
+                // Assign a fresh sequential index
+                CreateTaskListItem(temp.objName, index, true, temp.timestamp);
+                index++;
             }
-        } else
+        }
+        else
         {
             Debug.Log("No file!");
         }
