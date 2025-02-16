@@ -3,13 +3,13 @@ using UnityEngine;
 
 public static class FileStorage
 {
-    private static string filePath = Path.Combine(Application.persistentDataPath, "userdata.json");
+    private static string filePath = Path.Combine(Application.persistentDataPath, "userData.json");
 
     public static void SaveData(UserData data)
     {
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(filePath, json);
-        Debug.Log("Data saved to: " + filePath);
+        //Debug.Log("Data saved to: " + filePath);
     }
 
     public static UserData LoadData()
