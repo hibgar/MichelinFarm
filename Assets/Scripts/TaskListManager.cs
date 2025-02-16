@@ -67,8 +67,6 @@ public class TaskListManager : MonoBehaviour
         itemObject.SetObjectInfo(name, index, timestamp);
         taskListObjects.Add(itemObject);
         TaskListObj temp = itemObject;
-        
-            Debug.Log("Added Task to List: " + name + ", Index: " + index); // 🔍 Debug task addition
 
         itemObject.GetComponent<Toggle>().onValueChanged.AddListener(delegate {CheckItem(temp); });
         addInputField.text = "";
@@ -92,29 +90,34 @@ public class TaskListManager : MonoBehaviour
 
     void SaveJSONData()
     {
-        UserData userData = new UserData();
-        userData.userId = "user_123";
+        //UserData userData = new UserData();
 
-        Debug.Log("TaskListObjects Count: " + taskListObjects.Count); // 🔍 Debugging
+        UserData userData = FileStorage.LoadData();
+
+        if (userData == null)
+        {
+            userData = new UserData();
+            userData.userId = FileStorage.GenerateUserId();
+        }
 
         if (taskListObjects.Count > 0)
         {
-            userData.taskList.Clear(); // ✅ Make sure we clear and re-add tasks properly
+            userData.taskList.Clear();
 
             foreach (var task in taskListObjects)
             {
-                Debug.Log("Saving Task: " + task.objName); // 🔍 Verify tasks are being added
+                Debug.Log("Saving Task: " + task.objName);
                 userData.taskList.Add(new TaskListManager.TasklistItem(task.objName, task.index, task.timestamp));
             }
         }
         else
         {
             Debug.Log("No tasks to save!");
+            userData.taskList.Clear();
         }
 
         string jsonOutput = JsonUtility.ToJson(userData, true);
-        Debug.Log("Final JSON Output: " + jsonOutput); // 🔍 Debug JSON structure
-
+        
         FileStorage.SaveData(userData);
     }
 
